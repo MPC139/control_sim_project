@@ -1,4 +1,4 @@
-# 🌡️ Sistema de Control Térmico de Lazo Cerrado para Data Center (PID)
+# Sistema de Control Térmico de Lazo Cerrado para Data Center (PID)
 
 Este proyecto consiste en el diseño, modelado, simulación y validación de un sistema de control automático en lazo cerrado para regular la temperatura del pasillo frío de un Centro de Datos (Data Center). El trabajo fue desarrollado para el Trabajo Final Integrador (TFI) de la materia **Teoría de Control (Comisión K-4011)** de la **Universidad Tecnológica Nacional (UTN - FRBA)**, correspondiente a **Julio de 2026**.
 
@@ -6,7 +6,7 @@ El sistema controla dinámicamente la velocidad de los ventiladores EC de una un
 
 ---
 
-## 🚀 Cómo Ejecutar el Simulador Interactivo
+##  Cómo Ejecutar el Simulador Interactivo
 
 El simulador interactivo está desarrollado en **Python** utilizando **Streamlit**. Permite interactuar en tiempo real con las ganancias del controlador ($K_p$, $K_i$, $K_d$), el setpoint dinámico de temperatura, la velocidad de refresco y la inyección de la perturbación DoS.
 
@@ -21,11 +21,11 @@ Solo debe abrir una terminal en la carpeta del proyecto y correr el script autom
 *Este script creará automáticamente el entorno virtual (`.venv`), instalará las dependencias necesarias (`requirements.txt`) de forma silenciosa e iniciará el servidor.*
 
 Si el navegador no se abre automáticamente, ingrese a:
-👉 **[http://localhost:8501](http://localhost:8501)**
+**[http://localhost:8501](http://localhost:8501)**
 
 ---
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 *   **`app.py`**: Código fuente de la aplicación interactiva Streamlit (simulación dinámica en tiempo real y offline).
 *   **`run_sim.sh`**: Script Bash autogestionado para inicializar el entorno virtual y lanzar el simulador.
@@ -39,7 +39,7 @@ Si el navegador no se abre automáticamente, ingrese a:
 
 ---
 
-## 📈 Parámetros del Sistema de Control
+##  Parámetros del Sistema de Control
 
 ### 1. Modelo de la Planta (Pasillo Frío)
 Se modela como un sistema de primer orden con tiempo muerto (FOPTD) que representa la inercia térmica del volumen de aire y el retardo de transporte:
@@ -65,7 +65,7 @@ El controlador implementado es de tipo PID paralelo en paralelo con lazo de real
 
 ---
 
-## 🧠 Características del Simulador en Tiempo Real
+##  Características del Simulador en Tiempo Real
 
 La pestaña **"Simulación Dinámica Segundo a Segundo"** cuenta con las siguientes características avanzadas de diseño:
 *   **Gráficos Interactivos de Alta Velocidad:** Implementados mediante gráficos nativos web en el cliente para máxima fluidez y tasa de refresco a 15+ FPS.
@@ -76,7 +76,7 @@ La pestaña **"Simulación Dinámica Segundo a Segundo"** cuenta con las siguien
 
 ---
 
-## ✍️ Autores y Cátedra
+##  Autores y Cátedra
 *   **Estudiante:** Matias Ezequiel Pormi
 *   **Cátedra:** Teoría de Control (K-4011) - UTN FRBA
 *   **Profesor:** Ing. Omar Oscár Civale
