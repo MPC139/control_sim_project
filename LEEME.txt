@@ -1,0 +1,36 @@
+# INSTRUCCIONES DE INSTALACIÓN Y EJECUCIÓN
+
+Este proyecto utiliza `uv` para una gestión de paquetes extremadamente rápida y eficiente.
+
+## Requisitos Previos
+Tener instalada la herramienta `uv`. Si no la tienes, puedes instalarla con:
+`curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+## Pasos para ejecutar el Simulador
+
+1. **Entrar en la carpeta del proyecto:**
+   ```bash
+   cd control_sim_project
+   ```
+
+2. **Ejecutar el script de inicio automático:**
+   ```bash
+   ./run_sim.sh
+   ```
+
+   *Este script se encargará de crear el entorno virtual (.venv), instalar las dependencias (streamlit, control, etc.) y lanzar la aplicación.*
+
+## Instalación Manual (Alternativa)
+Si prefieres hacerlo paso a paso:
+1. `uv venv`
+2. `source .venv/bin/activate`
+3. `uv pip install -r requirements.txt`
+4. `streamlit run app.py`
+
+---
+**Archivos incluidos:**
+- `app.py`: Código principal del simulador interactivo.
+- `requirements.txt`: Lista de librerías necesarias.
+- `marco_teorico.md`: Sustento académico del modelo FOPTD.
+- `sprints.md`: Planificación del proyecto.
+- `run_sim.sh`: Script de automatización.

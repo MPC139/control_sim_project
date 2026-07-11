@@ -1,0 +1,76 @@
+================================================================================
+OPCIONES DE SISTEMAS DE CONTROL PARA TFI - TEORÍA DE CONTROL
+================================================================================
+
+A continuación se detallan tres propuestas de sistemas de control reales, su
+viabilidad de simulación en Python y el potencial de interactividad.
+
+--------------------------------------------------------------------------------
+OPCIÓN 1: CONTROL DE TEMPERATURA DE DATA CENTER (AIRE DE PRECISIÓN)
+--------------------------------------------------------------------------------
+* Contexto Real: Sistemas tipo In-Row Cooling de Schneider Electric o Vertiv.
+* Descripción: Controlar la temperatura del aire en el "pasillo frío" de un 
+  centro de datos mediante la regulación de la potencia de compresores y 
+  velocidad de ventiladores.
+* Modelo Matemático: 
+    - Tipo: Primer Orden con Tiempo Muerto (FOPTD).
+    - Transferencia: G(s) = (K * e^(-L*s)) / (tau*s + 1)
+* Variables:
+    - Entrada (U): Voltaje a variadores de frecuencia de ventiladores.
+    - Salida (Y): Temperatura ambiente (°C).
+    - Perturbaciones: Picos de carga de CPU de los servidores, apertura de puertas.
+* Simulación en Python:
+    - Librerías: `control`, `scipy.integrate`, `ipywidgets` para interactividad.
+    - Dificultad: Media. El tiempo muerto (delay) añade un desafío interesante.
+* Potencial Interactivo: Deslizadores para cambiar el Setpoint (ej. 22°C), 
+  simular un "ataque DoS" que aumente el calor generado y ver cómo el aire 
+  reacciona.
+
+--------------------------------------------------------------------------------
+OPCIÓN 2: CONTROL DE NIVEL DE TANQUE DE MEZCLA (PROCESO QUÍMICO)
+--------------------------------------------------------------------------------
+* Contexto Real: Transmisores de nivel Emerson Rosemount y válvulas Fisher.
+* Descripción: Mantener el nivel de líquido en un tanque de almacenamiento 
+  mientras varía la demanda de salida de una planta.
+* Modelo Matemático:
+    - Tipo: Primer orden (Auto-regulado o Integrativo).
+    - Nota: Es intrínsecamente no-lineal (Ley de Torricelli), lo que permite 
+      lucirse con la "linealización por series de Taylor".
+* Variables:
+    - Entrada (U): Apertura de válvula de entrada (0-100%).
+    - Salida (Y): Nivel del tanque (metros).
+    - Perturbaciones: Variación en el caudal de salida (demanda externa) o fugas.
+* Simulación en Python:
+    - Librerías: `numpy`, `matplotlib`. Ideal para mostrar la diferencia entre 
+      el modelo no-lineal y el linealizado.
+    - Dificultad: Media-Alta (por la linealización).
+* Potencial Interactivo: Variar el área del tanque, el coeficiente de descarga 
+  y graficar la respuesta ante una "fuga" repentina.
+
+--------------------------------------------------------------------------------
+OPCIÓN 3: CONTROL DE VELOCIDAD DE CINTA TRANSPORTADORA (MOTOR DC)
+--------------------------------------------------------------------------------
+* Contexto Real: Variadores SEW-EURODRIVE o Siemens SINAMICS.
+* Descripción: Mantener la velocidad constante de una cinta transportadora 
+  independientemente del peso de los objetos que se coloquen sobre ella.
+* Modelo Matemático:
+    - Tipo: Segundo Orden (Dynamics electromecánicas).
+    - Transferencia: G(s) = K / ( (Js+b)(Ls+R) + K^2 )
+* Variables:
+    - Entrada (U): Voltaje de armadura del motor.
+    - Salida (Y): Velocidad lineal de la cinta (m/s).
+    - Perturbaciones: Cambio en la carga (peso de cajas), cambios en la fricción.
+* Simulación en Python:
+    - Librerías: `control`. Es el sistema más "limpio" matemáticamente.
+    - Dificultad: Baja-Media. Permite un análisis de estabilidad (Bode, Root Locus)
+      muy claro y académico.
+* Potencial Interactivo: Deslizadores para las ganancias PID (Kp, Ki, Kd), 
+  cambiar el peso de la carga en tiempo real y observar el "overshoot".
+
+================================================================================
+RECOMENDACIÓN TÉCNICA
+================================================================================
+- Si buscas la simulación más "perfecta" y académica: Opción 3 (Cinta).
+- Si buscas un tema con más "sabor" a sistemas/IT: Opción 1 (Data Center).
+- Si quieres demostrar habilidades matemáticas avanzadas: Opción 2 (Tanque).
+================================================================================
