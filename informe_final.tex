@@ -667,7 +667,63 @@ La temperatura en el dominio de Laplace resulta $Y(s) = T_d(s) \cdot D(s)$. Su e
     \label{fig:perturbacion}
 \end{figure}
 
-\subsection{Análisis del Error en Estado Estable ($e_{ss}$)}
+\subsection{Límites Operativos y Condiciones de Falla}
+
+El actuador CRAC posee una capacidad finita de enfriamiento ($0$-$100$\,\% de apertura). Esta saturación física impone un límite fundamental al rango de perturbaciones que el sistema puede rechazar. Definir este límite es esencial para establecer el dominio de funcionamiento normal y las condiciones bajo las cuales se considera que el sistema falla.
+
+\textbf{Análisis en estado estacionario.} En régimen permanente, la temperatura se estabiliza en el setpoint y el esfuerzo de control debe compensar simultáneamente la diferencia entre la temperatura inicial y la deseada más el efecto de la perturbación. La relación está dada por:
+\begin{equation}
+    T_{sp} = T_0 + K\,U + D \quad\Longrightarrow\quad U = \frac{T_0 - T_{sp} + D}{|K|}
+\end{equation}
+Con $K = -0.25$\,\textdegree C/\%, $T_0 = 28$\,\textdegree C y $T_{sp} = 22$\,\textdegree C:
+\begin{equation}
+    U = 4\,(28 - 22 + D) = 24 + 4D
+\end{equation}
+El término $24$\,\% corresponde al esfuerzo base necesario para reducir la temperatura desde $28$\,$^\circ$C hasta $22$\,$^\circ$C en ausencia de perturbación.
+
+\textbf{Condición de operación normal.} Para que el sistema mantenga el setpoint sin alcanzar la saturación del actuador se requiere $U \leq 100$\,\%. Sustituyendo:
+\begin{equation}
+    24 + 4D \leq 100 \quad\Longrightarrow\quad D \leq 19\,^\circ\text{C}
+\end{equation}
+Para el caso general con una temperatura inicial $T_0$ y un setpoint $T_{sp}$ arbitrarios, el límite es $D \leq 25 - (T_0 - T_{sp})$. Si el sistema ya se encuentra estabilizado en el setpoint al momento de la perturbación ($T_0 \approx T_{sp}$), el límite asciende a $D \leq 25$\,$^\circ$C. La simulación de escritorio permite verificar visualmente este comportamiento: al inyectar un DoS superior al límite, el indicador de estado conmuta a rojo y la temperatura converge a un valor permanentemente alejado del setpoint.
+
+\textbf{Definición de falla por capacidad de refrigeración.} Se considera que el sistema entra en \textbf{falla funcional por capacidad} cuando la perturbación supera el límite calculado y el actuador opera permanentemente saturado, resultando en un error en régimen permanente distinto de cero. Sin embargo, debido a la inercia térmica de la planta, se define un umbral temporal para la detección de la falla: si el esfuerzo de control $u(t)$ permanece saturado al $100\%$ por un tiempo continuo superior a $t_{\text{sat}} \ge 30$\,segundos, se declara el estado de falla del sistema. Esta condición es irreversible sin intervención externa (reducción de la carga térmica o activación de unidades CRAC redundantes).
+
+\textbf{Medidas de mitigación.} En configuraciones típicas de Data Center se emplea redundancia $N+1$: si una unidad CRAC satura, las restantes absorben la carga excedente. Adicionalmente, un lazo de control feedforward que anticipe el aumento de carga térmica a partir de la monitorización del uso de CPU puede iniciar el enfriamiento antes de que la temperatura del aire se eleve, reduciendo el pico transitorio y ampliando el margen efectivo de rechazo.
+
+\subsection{Calidad de Servicio Térmica y Clasificación Dinámica de Estados}
+
+Más allá de la condición de falla funcional por saturación permanente del actuador, existe un criterio de calidad de servicio (QoS) térmica que antecede a la falla, el cual está regulado por la normativa de la asociación americana \textbf{ASHRAE TC 9.9} para entornos de clase A1 (Data Centers empresariales):
+\begin{itemize}
+    \item \textbf{Rango Recomendado ($18\text{ }^\circ\text{C} \le T \le 27\text{ }^\circ\text{C}$):} Es el intervalo térmico óptimo para asegurar la máxima confiabilidad del hardware. Superar los $27$\,$^\circ$C degrada la vida útil de los servidores debido a fatiga térmica.
+    \item \textbf{Rango Admitido ($15\text{ }^\circ\text{C} \le T \le 32\text{ }^\circ\text{C}$):} Límites extremos de operación segura. Exceder los $32$\,$^\circ$C constituye una falla térmica crítica y desencadena el apagado automático (\textit{thermal shutdown}) de los servidores para proteger la CPU.
+\end{itemize}
+
+Para capturar y evaluar cuantitativamente el estrés térmico del sistema ante transitorios y perturbaciones (como el ataque DoS), definimos tres métricas clave de QoS térmica en el simulador:
+\begin{enumerate}
+    \item \textbf{Tiempo sobre el límite ASHRAE recomendado ($t_{>27}$):}
+    \begin{equation}
+        t_{>27} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} I(T(t) > 27) \, dt \quad \text{[s]}
+    \end{equation}
+    Donde $I(\cdot)$ es la función indicadora. Mide el tiempo de degradación de vida útil.
+    \item \textbf{Tiempo sobre el límite de seguridad crítico ($t_{>32}$):}
+    \begin{equation}
+        t_{>32} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} I(T(t) > 32) \, dt \quad \text{[s]}
+    \end{equation}
+    Mide el tiempo de riesgo de daño físico inmediato y pérdida de servicio.
+    \item \textbf{TES (Thermal Excursion Severity - Severidad de Excursión Térmica):}
+    Representa la acumulación del error de temperatura excedente respecto al setpoint durante el ataque DoS:
+    \begin{equation}
+        \text{TES} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} \max(0, T(t) - T_{sp}) \, dt \quad \text{[}^\circ\text{C}\cdot\text{s]}
+    \end{equation}
+\end{enumerate}
+
+Para reflejar estas normativas en tiempo real, el simulador de escritorio clasifica dinámicamente el estado de operación de la planta evaluando segundo a segundo las variables de estado físicas reales ($T(t)$ y $u(t)$) en lugar de una lógica estática de perturbación:
+\begin{itemize}
+    \item \textbf{Operación Normal (Verde)}: La temperatura del aire se mantiene segura ($T(t) \le 27$\,$^\circ$C) y el actuador opera holgado ($t_{\text{sat}} < 30$\,s).
+    \item \textbf{Advertencia / Al Límite (Amarillo)}: La temperatura ingresa a la zona de degradación ($27\text{ }^\circ\text{C} < T(t) \le 32\text{ }^\circ\text{C}$) o el actuador se satura temporalmente ($U(t) = 100\%$ por $t_{\text{sat}} < 30$\,s) para contener la perturbación.
+    \item \textbf{Estado de Falla (Rojo)}: La temperatura excede el límite crítico ($T(t) > 32$\,$^\circ$C) o la capacidad de enfriamiento se satura de forma persistente ($t_{\text{sat}} \ge 30$\,s).
+\end{itemize}
 
 El sistema de control térmico original posee una realimentación no unitaria debido a la ganancia del sensor de temperatura ($H(s) = 0.2$\,V/$^\circ$C). Dado que las señales en el comparador principal se encuentran en el dominio de tensión eléctrica y no de temperatura, no es posible calcular ni evaluar directamente el error físico de seguimiento como la diferencia de temperatura $R(s) - Y(s)$ desde la señal de error de tensión $E(s)$.
 
