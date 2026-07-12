@@ -550,7 +550,7 @@ La respuesta temporal $y(t)$ se obtiene expandiendo $Y(s)$ en fracciones parcial
 \end{figure}
 
 \subsection{Rechazo de Perturbación (Ataque DoS)}
-En $t=200$\,s, se introduce una perturbación tipo escalón de magnitud $5.0^\circ$C, simulando la carga térmica generada por un pico de procesamiento masivo provocado por un ataque informático de denegación de servicio (DoS). 
+En $t=200$\,s, se introduce una perturbación tipo escalón de magnitud $5.0^\circ$C. Este valor modela el incremento promedio de temperatura típico en el pasillo frío bajo condiciones reales de un ataque de denegación de servicio (DoS) en un sistema con confinamiento térmico. No obstante, en el simulador interactivo de escritorio se evalúan perturbaciones extremas de hasta $25.0^\circ$C con el fin de estresar el lazo de control y caracterizar empíricamente su límite físico de saturación y pérdida de capacidad de regulación.
 
 A continuación se analiza el rechazo de la perturbación de forma aislada. Se anula la consigna de referencia ($R(s) = 0$, y por tanto $V_{sp}(s) = 0$) para estudiar exclusivamente el camino de la perturbación hacia la salida. La Fig.~\ref{fig:bloques_perturbacion} presenta el diagrama de bloques resultante, donde se reemplaza $R(s)$ por $0$ y se agrega la perturbación $D(s)$ sumada a la salida de la planta.
 
