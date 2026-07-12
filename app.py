@@ -595,7 +595,7 @@ with tab3:
             e_v = v_sp_rt - v_sens
 
             state["integral_e"] += e_v * dt
-            state["integral_e"] = float(np.clip(state["integral_e"], -200, 200))
+            state["integral_e"] = float(np.clip(state["integral_e"], -500, 500))
             deriv = (e_v - state["prev_ev"]) / dt if k > 0 else 0.0
             state["prev_ev"] = e_v
 

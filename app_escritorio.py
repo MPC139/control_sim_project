@@ -415,7 +415,7 @@ class Simulador(QMainWindow):
 
             # -- PID --
             self.integral += e_v * self.dt
-            self.integral = float(np.clip(self.integral, -200, 200))
+            self.integral = float(np.clip(self.integral, -500, 500))
             deriv = (e_v - self.prev_ev) / self.dt if self.t > 0 else 0.0
             self.prev_ev = e_v
 
