@@ -725,6 +725,8 @@ Para reflejar estas normativas en tiempo real, el simulador de escritorio clasif
     \item \textbf{Estado de Falla (Rojo)}: La temperatura excede el límite crítico ($T(t) > 32$\,$^\circ$C, Falla Térmica) o la capacidad de enfriamiento se satura de forma persistente ($t_{\text{sat}} \ge 30$\,s) perdiendo la capacidad de mantener el rango recomendado ($T(t) > 27$\,$^\circ$C, Falla por Capacidad).
 \end{itemize}
 
+\subsection{Análisis del Error en Estado Estable \texorpdfstring{($e_{ss}$)}{e\_ss}}
+
 El sistema de control térmico original posee una realimentación no unitaria debido a la ganancia del sensor de temperatura ($H(s) = 0.2$\,V/$^\circ$C). Dado que las señales en el comparador principal se encuentran en el dominio de tensión eléctrica y no de temperatura, no es posible calcular ni evaluar directamente el error físico de seguimiento como la diferencia de temperatura $R(s) - Y(s)$ desde la señal de error de tensión $E(s)$.
 
 Para calcular de manera rigurosa y conceptual el error en estado estacionario, se aplica el procedimiento clásico de transformación de diagramas de bloques para convertir el lazo original en un lazo equivalente con realimentación unitaria. De este modo, la señal de error se define directamente en la misma unidad física que la variable de consigna ($^\circ$C). En la Fig. \ref{fig:pasos_error} se detallan gráficamente los cuatro pasos de esta transformación.
