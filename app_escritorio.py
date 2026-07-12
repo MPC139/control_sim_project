@@ -497,14 +497,14 @@ class Simulador(QMainWindow):
         if T_k > 32.0:
             self.lbl_status.setText(f"● FALLA: TEMP. CRÍTICA ({T_k:.1f} °C)")
             self.lbl_status.setStyleSheet(red)
-        elif self.time_saturated_continuous >= 30.0:
-            self.lbl_status.setText(f"● FALLA: CRAC SATURADO ({self.time_saturated_continuous:.0f}s)")
+        elif self.time_saturated_continuous >= 30.0 and T_k > 27.0:
+            self.lbl_status.setText(f"● FALLA: CAPACIDAD EXCEDIDA ({self.time_saturated_continuous:.0f}s)")
             self.lbl_status.setStyleSheet(red)
         elif T_k > 27.0:
             self.lbl_status.setText(f"⚠ DEGRADACIÓN: T > 27 °C ({T_k:.1f} °C)")
             self.lbl_status.setStyleSheet(yellow)
         elif self.time_saturated_continuous > 0.0:
-            self.lbl_status.setText(f"⚠ SATURACIÓN TEMPORAL ({self.time_saturated_continuous:.1f}s)")
+            self.lbl_status.setText(f"⚠ CRAC SATURADO - SIN RESERVA ({self.time_saturated_continuous:.1f}s)")
             self.lbl_status.setStyleSheet(yellow)
         else:
             self.lbl_status.setText("● OPERACIÓN NORMAL (SEGURO)")

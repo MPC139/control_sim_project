@@ -720,9 +720,9 @@ Para capturar y evaluar cuantitativamente el estrés térmico del sistema ante t
 
 Para reflejar estas normativas en tiempo real, el simulador de escritorio clasifica dinámicamente el estado de operación de la planta evaluando segundo a segundo las variables de estado físicas reales ($T(t)$ y $u(t)$) en lugar de una lógica estática de perturbación:
 \begin{itemize}
-    \item \textbf{Operación Normal (Verde)}: La temperatura del aire se mantiene segura ($T(t) \le 27$\,$^\circ$C) y el actuador opera holgado ($t_{\text{sat}} < 30$\,s).
-    \item \textbf{Advertencia / Al Límite (Amarillo)}: La temperatura ingresa a la zona de degradación ($27\text{ }^\circ\text{C} < T(t) \le 32\text{ }^\circ\text{C}$) o el actuador se satura temporalmente ($U(t) = 100\%$ por $t_{\text{sat}} < 30$\,s) para contener la perturbación.
-    \item \textbf{Estado de Falla (Rojo)}: La temperatura excede el límite crítico ($T(t) > 32$\,$^\circ$C) o la capacidad de enfriamiento se satura de forma persistente ($t_{\text{sat}} \ge 30$\,s).
+    \item \textbf{Operación Normal (Verde)}: La temperatura se mantiene dentro del rango seguro ($T(t) \le 27$\,$^\circ$C) y el actuador no está saturado ($t_{\text{sat}} = 0$\,s).
+    \item \textbf{Advertencia / Al Límite (Amarillo)}: La temperatura ingresa a la zona de degradación ($27\text{ }^\circ\text{C} < T(t) \le 32\text{ }^\circ\text{C}$), o el actuador se satura de forma temporal o persistente ($t_{\text{sat}} > 0$\,s) pero manteniendo la temperatura bajo control dentro del rango seguro ($T(t) \le 27$\,$^\circ$C).
+    \item \textbf{Estado de Falla (Rojo)}: La temperatura excede el límite crítico ($T(t) > 32$\,$^\circ$C, Falla Térmica) o la capacidad de enfriamiento se satura de forma persistente ($t_{\text{sat}} \ge 30$\,s) perdiendo la capacidad de mantener el rango recomendado ($T(t) > 27$\,$^\circ$C, Falla por Capacidad).
 \end{itemize}
 
 El sistema de control térmico original posee una realimentación no unitaria debido a la ganancia del sensor de temperatura ($H(s) = 0.2$\,V/$^\circ$C). Dado que las señales en el comparador principal se encuentran en el dominio de tensión eléctrica y no de temperatura, no es posible calcular ni evaluar directamente el error físico de seguimiento como la diferencia de temperatura $R(s) - Y(s)$ desde la señal de error de tensión $E(s)$.
