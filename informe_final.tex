@@ -693,37 +693,35 @@ Para el caso general con una temperatura inicial $T_0$ y un setpoint $T_{sp}$ ar
 
 \subsection{Calidad de Servicio Térmica y Clasificación Dinámica de Estados}
 
-Más allá de la condición de falla funcional por saturación permanente del actuador, existe un criterio de calidad de servicio (QoS) térmica que antecede a la falla, el cual está regulado por la normativa de la asociación americana \textbf{ASHRAE TC 9.9} para entornos de clase A1 (Data Centers empresariales):
+Más allá de la condición de falla por saturación física, el sistema debe cumplir con la normativa **ASHRAE TC 9.9** (Clase A1) para asegurar la integridad de los servidores:
 \begin{itemize}
-    \item \textbf{Rango Recomendado ($18\text{ }^\circ\text{C} \le T \le 27\text{ }^\circ\text{C}$):} Es el intervalo térmico óptimo para asegurar la máxima confiabilidad del hardware. Superar los $27$\,$^\circ$C degrada la vida útil de los servidores debido a fatiga térmica.
-    \item \textbf{Rango Admitido ($15\text{ }^\circ\text{C} \le T \le 32\text{ }^\circ\text{C}$):} Límites extremos de operación segura. Exceder los $32$\,$^\circ$C constituye una falla térmica crítica y desencadena el apagado automático (\textit{thermal shutdown}) de los servidores para proteger la CPU.
+    \item \textbf{Umbral Recomendado ($\le 27$\,$^\circ$C):} Límite térmico óptimo. Superarlo acelera la degradación física del hardware por fatiga térmica.
+    \item \textbf{Umbral Límite ($\le 32$\,$^\circ$C):} Límite extremo de operación. Superarlo implica un riesgo inminente de daño físico y activa el apagado automático (\textit{thermal shutdown}) de los equipos.
 \end{itemize}
 
-Para capturar y evaluar cuantitativamente el estrés térmico del sistema ante transitorios y perturbaciones (como el ataque DoS), definimos tres métricas clave de QoS térmica en el simulador:
-\begin{enumerate}
-    \item \textbf{Tiempo sobre el límite ASHRAE recomendado ($t_{>27}$):}
-    \begin{equation}
-        t_{>27} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} I(T(t) > 27) \, dt \quad \text{[s]}
-    \end{equation}
-    Donde $I(\cdot)$ es la función indicadora. Mide el tiempo de degradación de vida útil.
-    \item \textbf{Tiempo sobre el límite de seguridad crítico ($t_{>32}$):}
-    \begin{equation}
-        t_{>32} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} I(T(t) > 32) \, dt \quad \text{[s]}
-    \end{equation}
-    Mide el tiempo de riesgo de daño físico inmediato y pérdida de servicio.
-    \item \textbf{TES (Thermal Excursion Severity - Severidad de Excursión Térmica):}
-    Representa la acumulación del error de temperatura excedente respecto al setpoint durante el ataque DoS:
-    \begin{equation}
-        \text{TES} = \int_{t_{\text{inicio}}}^{t_{\text{fin}}} \max(0, T(t) - T_{sp}) \, dt \quad \text{[}^\circ\text{C}\cdot\text{s]}
-    \end{equation}
-\end{enumerate}
-
-Para reflejar estas normativas en tiempo real, el simulador de escritorio clasifica dinámicamente el estado de operación de la planta evaluando segundo a segundo las variables de estado físicas reales ($T(t)$ y $u(t)$) en lugar de una lógica estática de perturbación:
+Para evaluar el impacto térmico del ataque DoS durante el transitorio, el simulador calcula en tiempo real tres métricas sencillas de Calidad de Servicio (QoS):
 \begin{itemize}
-    \item \textbf{Operación Normal (Verde)}: La temperatura se mantiene dentro del rango seguro ($T(t) \le 27$\,$^\circ$C) y el actuador no está saturado ($t_{\text{sat}} = 0$\,s).
-    \item \textbf{Advertencia / Al Límite (Amarillo)}: La temperatura ingresa a la zona de degradación ($27\text{ }^\circ\text{C} < T(t) \le 32\text{ }^\circ\text{C}$), o el actuador se satura de forma temporal o persistente ($t_{\text{sat}} > 0$\,s) pero manteniendo la temperatura bajo control dentro del rango seguro ($T(t) \le 27$\,$^\circ$C).
-    \item \textbf{Estado de Falla (Rojo)}: La temperatura excede el límite crítico ($T(t) > 32$\,$^\circ$C, Falla Térmica) o la capacidad de enfriamiento se satura de forma persistente ($t_{\text{sat}} \ge 30$\,s) perdiendo la capacidad de mantener el rango recomendado ($T(t) > 27$\,$^\circ$C, Falla por Capacidad).
+    \item \textbf{Tiempo de Degradación ($t_{>27}$):} Tiempo acumulado (en segundos) en el cual la temperatura del pasillo frío supera los $27$\,$^\circ$C.
+    \item \textbf{Tiempo de Falla Térmica ($t_{>32}$):} Tiempo acumulado en el cual la temperatura excede los $32$\,$^\circ$C.
+    \item \textbf{Severidad del Desvío (TES):} Representa el área bajo la curva del error térmico (en $^\circ$C$\cdot$s) por encima del setpoint, acumulada desde el inicio del ataque.
 \end{itemize}
+
+El simulador de escritorio evalúa dinámicamente las variables físicas de la planta ($T(t)$ y $u(t)$) para clasificar el estado de operación general según la Tabla~\ref{tab:estados}.
+
+\begin{table}[htbp]
+\centering
+\caption{Criterios de Clasificación Dinámica de Estados}
+\label{tab:estados}
+\begin{tabular}{lll}
+\hline
+\textbf{Estado Operativo} & \textbf{Condición de Temperatura} & \textbf{Condición del Actuador} \\ \hline
+\textbf{Normal (Verde)}  & $T(t) \le 27$\,$^\circ$C & Actuador con margen ($u < 100\%$) \\ \hline
+\textbf{Alerta (Amarillo)} & $27 < T(t) \le 32$\,$^\circ$C & Actuador saturado ($u = 100\%$ por $<30$\,s) \\ 
+                             & o bien $T(t) \le 27$\,$^\circ$C & pero manteniendo la consigna segura. \\ \hline
+\textbf{Falla (Rojo)}    & $T(t) > 32$\,$^\circ$C (Térmica) & Actuador saturado de forma persistente \\
+                             & o bien $T(t) > 27$\,$^\circ$C & ($u = 100\%$ por $t_{\text{sat}} \ge 30$\,s, Capacidad). \\ \hline
+\end{tabular}
+\end{table}
 
 \subsection{Análisis del Error en Estado Estable \texorpdfstring{($e_{ss}$)}{e\_ss}}
 
