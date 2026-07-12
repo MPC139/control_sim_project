@@ -108,7 +108,7 @@ donde $T$ es la temperatura en $^\circ$C y $V_{sensor}(T)$ es la tensión analó
     \item \textbf{Válvula de Expansión Electrónica (EEV):} Modula el caudal másico de refrigerante en el lazo de expansión directa de la CRAC para ajustar la potencia frigorífica neta entregada al serpentín.
 \end{itemize}
 
-A los fines del modelado y para simplificar el desarrollo analítico, la dinámica de los actuadores se considera ideal: su respuesta es instantánea frente a la constante de tiempo térmica de la sala ($\tau = 35$\,s). En consecuencia, en el diagrama de bloques de la Fig.~\ref{fig:bloques} se modelan con una ganancia unitaria $G_a(s) = 1$, de modo que $U(s) = U_{PID}(s)$.
+A los fines del modelado y para simplificar el desarrollo analítico, la dinámica de los actuadores se representa mediante la función de transferencia $G_a(s)$. Dado que su respuesta es sumamente veloz frente a la constante de tiempo térmica de la sala ($\tau = 35$\,s), se considera un comportamiento ideal con $G_a(s) = 1$, de modo que $U(s) = U_{PID}(s)$.
 
 \subsection{Variables, Unidades y Rangos}
 \begin{itemize}
@@ -168,7 +168,7 @@ La estructura del sistema sigue la topología de realimentación unitaria con ad
         \node [sum, right=1.2cm of i] (sum_pid) {};
         
         % Actuator (unity gain for simplicity)
-        \node [block, right=0.8cm of sum_pid] (actuator) {Actuador \\ $G_a(s) = 1$};
+        \node [block, right=0.8cm of sum_pid] (actuator) {Actuador \\ $G_a(s)$};
         
         % Thermal Plant
         \node [block, right=0.8cm of actuator] (plant) {Planta \\ $G_p(s)$};
@@ -245,7 +245,7 @@ La estructura del sistema sigue la topología de realimentación unitaria con ad
     }
     \shorthandon{<}
     \shorthandon{>}
-    \caption{Diagrama de bloques del lazo de control de temperatura del Data Center. Se detalla la señal de referencia $R(s)$, el transmisor de referencia $H_r(s)$, el error $E(s)$, el controlador PID $G_c(s)$, el actuador con ganancia unitaria $G_a(s) = 1$, la planta térmica $G_p(s)$, la perturbación $D(s)$ y el sensor de realimentación $H(s)$.}
+    \caption{Diagrama de bloques del lazo de control de temperatura del Data Center. Se detalla la señal de referencia $R(s)$, el transmisor de referencia $H_r(s)$, el error $E(s)$, el controlador PID $G_c(s)$, el actuador $G_a(s)$, la planta térmica $G_p(s)$, la perturbación $D(s)$ y el sensor de realimentación $H(s)$.}
     \label{fig:bloques}
 \end{figure*}
 
@@ -318,7 +318,7 @@ Para ilustrar este concepto, la Fig.~\ref{fig:lazo_abierto} muestra el lazo de c
         \node [block, right=0.8cm of in] (gc) {$-G_c(s)$};
         
         % Actuator
-        \node [block, right=0.6cm of gc] (ga) {$G_a(s){=}1$};
+        \node [block, right=0.6cm of gc] (ga) {$G_a(s)$};
         
         % Plant
         \node [block, right=0.6cm of ga] (gp) {$G_p(s)$};
@@ -357,17 +357,17 @@ Para ilustrar este concepto, la Fig.~\ref{fig:lazo_abierto} muestra el lazo de c
 
 Sin embargo, el proceso físico presenta una particularidad crítica: la ganancia estática $K$ de la planta térmica es negativa ($K = -0.25\,^\circ$C/\%). Esto significa que un incremento en la acción de control $U(s)$ (mayor velocidad de giro en los ventiladores de la CRAC) produce una reducción en la temperatura de salida $T(s)$ (enfriamiento).
 
-Si implementáramos el lazo con una realimentación negativa convencional ($E = V_{sp} - V_{sensor}$) utilizando ganancias del controlador positivas ($G_c(s) > 0$), el producto de lazo abierto $G_{ol}(s) = G_c(s) G_p(s) H(s)$ tendría un signo negativo neto. Esto transformaría el denominador del lazo cerrado convencional ($1 + G_{ol}(s)$) en un término de la forma $1 - |G_{ol}(s)|$, lo que algebraicamente representa una realimentación constructiva o \textbf{realimentación positiva}.
+Si implementáramos el lazo con una realimentación negativa convencional ($E = V_{sp} - V_{sensor}$) utilizando ganancias del controlador positivas ($G_c(s) > 0$), el producto de lazo abierto $G_{ol}(s) = G_c(s) G_a(s) G_p(s) H(s)$ tendría un signo negativo neto. Esto transformaría el denominador del lazo cerrado convencional ($1 + G_{ol}(s)$) en un término de la forma $1 - |G_{ol}(s)|$, lo que algebraicamente representa una realimentación constructiva o \textbf{realimentación positiva}.
 
 Físicamente, esto desencadenaría una inestabilidad catastrófica (divergencia térmica o runaway): ante un aumento accidental de la temperatura en la sala, $V_{sensor}$ se elevaría, reduciendo la señal de error en tensión $E(s)$. Un controlador con ganancias positivas respondería disminuyendo el esfuerzo $U(s)$ (ventilación), provocando que la temperatura subiera aún más de forma indefinida.
 
 Para restaurar el régimen corrector de realimentación negativa estable, es imperativo realizar una inversión de signo en la acción de control, lo que equivale a modelar el controlador efectivo con signo invertido como $-G_c(s)$. De este modo, la trayectoria directa corregida $G_d(s)$ y la función de lazo abierto $G_{ol}(s)$ utilizada para la caracterización de la estabilidad se definen formalmente como:
 \begin{align}
-    G_d(s) &= - G_c(s) G_p(s) \\
-    G_{ol}(s) &= G_d(s) H(s) = - G_c(s) G_p(s) H(s)
+    G_d(s) &= - G_c(s) G_a(s) G_p(s) \\
+    G_{ol}(s) &= G_d(s) H(s) = - G_c(s) G_a(s) G_p(s) H(s)
 \end{align}
 
-Esta corrección compensa matemáticamente la ganancia estática negativa del proceso, logrando que $G_{ol}(s)$ sea positiva a bajas frecuencias y garantizando que el sistema regule en realimentación negativa. En la Fig. \ref{fig:bloques_simples} se detalla este esquema simplificado del lazo y cómo se definen ambos componentes.
+Esta corrección compensa matemáticamente la ganancia estática negativa del proceso (considerando un comportamiento ideal del actuador con $G_a(s) = 1$), logrando que $G_{ol}(s)$ sea positiva a bajas frecuencias y garantizando que el sistema regule en realimentación negativa. En la Fig. \ref{fig:bloques_simples} se detalla este esquema simplificado del lazo y cómo se definen ambos componentes.
 
 \begin{figure}[htbp]
     \centering
@@ -453,7 +453,7 @@ La Fig.~\ref{fig:seguimiento} presenta el diagrama de bloques simplificado para 
         \node [block, right=0.8cm of r_in] (kt) {$H_r(s) = 0.2$};
         \node [sum, right=1.0cm of kt] (sum1) {};
         \node [block, right=1.0cm of sum1] (gc) {$-G_c(s)$};
-        \node [block, right=1.3cm of gc] (ga) {$G_a(s) = 1$};
+        \node [block, right=1.3cm of gc] (ga) {$G_a(s)$};
         \node [block, right=1.2cm of ga] (gp) {$G_p(s)$};
         \node [output, right=1.0cm of gp] (y_out) {};
         
@@ -508,7 +508,7 @@ A continuación se presenta el desarrollo analítico de la transferencia de lazo
                &= G_c(s)\,H(s)\,Y(s) - G_c(s)\,H_r(s)\,R(s)
 \end{align}
 
-El actuador, modelado como se indicó en la Sección~\ref{sec:alcance} con ganancia unitaria $G_a(s) = 1$, transfiere esta señal sin modificarla: $U(s) = U_{PID}(s)$.
+El actuador, modelado como se indicó en la Sección~\ref{sec:alcance} con dinámica ideal $G_a(s) = 1$, transfiere esta señal sin modificarla: $U(s) = U_{PID}(s)$.
 
 \textbf{4. Planta.} El proceso térmico recibe $U(s)$ y produce la temperatura de salida:
 \begin{equation}
@@ -571,7 +571,7 @@ A continuación se analiza el rechazo de la perturbación de forma aislada. Se a
         \node [input] (r_in) {};
         \node [sum, right=0.6cm of r_in] (sum1) {};
         \node [block, right=1.0cm of sum1] (gc) {$-G_c(s)$};
-        \node [block, right=1.3cm of gc] (ga) {$G_a(s) = 1$};
+        \node [block, right=1.3cm of gc] (ga) {$G_a(s)$};
         \node [block, right=1.2cm of ga] (gp) {$G_p(s)$};
         \node [sum, right=1.0cm of gp] (sum2) {};
         \node [output, right=1.0cm of sum2] (y_out) {};
@@ -630,7 +630,7 @@ A continuación se analiza el rechazo de la perturbación de forma aislada. Se a
                &= G_c(s)\,H(s)\,Y(s)
 \end{align}
 
-El actuador, con ganancia unitaria $G_a(s) = 1$, transfiere esta señal sin modificarla: $U(s) = U_{PID}(s)$.
+El actuador, con dinámica ideal $G_a(s) = 1$, transfiere esta señal sin modificarla: $U(s) = U_{PID}(s)$.
 
 \textbf{4. Planta con perturbación.} La perturbación $D(s)$ se suma a la salida de la planta, elevando la temperatura de forma aditiva. La salida total es:
 \begin{equation}
