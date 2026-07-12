@@ -669,25 +669,35 @@ La temperatura en el dominio de Laplace resulta $Y(s) = T_d(s) \cdot D(s)$. Su e
 
 \subsection{Límites Operativos y Condiciones de Falla}
 
-El actuador CRAC posee una capacidad finita de enfriamiento ($0$-$100$\,\% de apertura). Esta saturación física impone un límite fundamental al rango de perturbaciones que el sistema puede rechazar. Definir este límite es esencial para establecer el dominio de funcionamiento normal y las condiciones bajo las cuales se considera que el sistema falla.
+Cualquier sistema físico de control posee restricciones en sus actuadores, ya que no existen fuentes capaces de entregar energía infinita. En nuestro caso, la unidad CRAC tiene una capacidad de enfriamiento delimitada por un rango de operación física de $0$\,\% (unidad apagada o válvulas cerradas) a $100$\,\% (unidad a máxima potencia). 
 
-\textbf{Análisis en estado estacionario.} En régimen permanente, la temperatura se estabiliza en el setpoint y el esfuerzo de control debe compensar simultáneamente la diferencia entre la temperatura inicial y la deseada más el efecto de la perturbación. La relación está dada por:
+Esta limitación física impone una frontera crítica: si el calor disipado por los servidores más el aporte térmico de una perturbación externa (como el ataque DoS) superan la capacidad máxima de extracción de calor del CRAC al $100$\,\% de apertura, el lazo de control perderá su capacidad de regular y la temperatura del pasillo frío subirá sin control. 
+
+Para encontrar matemáticamente este límite y definir en qué punto el sistema entra en una condición de falla, realizamos un **balance térmico en estado estacionario** (régimen permanente, cuando el transitorio ha concluido y las variables se han estabilizado). En este estado, la temperatura del aire en el pasillo frío ($T_{out}$) es el resultado del balance estático entre la temperatura base de la sala ($T_0$), el enfriamiento provocado por la apertura del CRAC ($K \cdot U$, donde la ganancia de la planta $K$ es negativa) y la perturbación térmica externa ($D$):
 \begin{equation}
-    T_{sp} = T_0 + K\,U + D \quad\Longrightarrow\quad U = \frac{T_0 - T_{sp} + D}{|K|}
+    T_{out} = T_0 + K\,U + D
 \end{equation}
-Con $K = -0.25$\,\textdegree C/\%, $T_0 = 28$\,\textdegree C y $T_{sp} = 22$\,\textdegree C:
+Para asegurar la estabilidad, deseamos que en estado permanente la temperatura coincida exactamente con nuestro setpoint de consigna ($T_{out} = T_{sp}$). Despejando el esfuerzo de control necesario $U$ obtenemos:
+\begin{equation}
+    U = \frac{T_0 - T_{sp} + D}{|K|}
+\end{equation}
+Evaluando con los parámetros nominales del diseño ($K = -0.25$\,\textdegree C/\%, $T_0 = 28$\,\textdegree C y $T_{sp} = 22$\,\textdegree C), la ecuación de esfuerzo se reduce a:
 \begin{equation}
     U = 4\,(28 - 22 + D) = 24 + 4D
 \end{equation}
-El término $24$\,\% corresponde al esfuerzo base necesario para reducir la temperatura desde $28$\,$^\circ$C hasta $22$\,$^\circ$C en ausencia de perturbación.
+Donde la constante de $24$\,\% representa el esfuerzo base del CRAC necesario para mantener el pasillo a $22$\,$^\circ$C partiendo de los $28$\,$^\circ$C iniciales, en ausencia completa de perturbaciones ($D = 0$).
 
-\textbf{Condición de operación normal.} Para que el sistema mantenga el setpoint sin alcanzar la saturación del actuador se requiere $U \leq 100$\,\%. Sustituyendo:
+\textbf{Condición de operación normal.} El sistema operará bajo control cerrado (operación normal) siempre y cuando el CRAC no se sature físicamente, lo cual exige que el esfuerzo calculado no supere el $100$\,\%. Resolviendo la inecuación:
 \begin{equation}
-    24 + 4D \leq 100 \quad\Longrightarrow\quad D \leq 19\,^\circ\text{C}
+    24 + 4D \le 100 \quad\Longrightarrow\quad D \le 19\,^\circ\text{C}
 \end{equation}
-Para el caso general con una temperatura inicial $T_0$ y un setpoint $T_{sp}$ arbitrarios, el límite es $D \leq 25 - (T_0 - T_{sp})$. Si el sistema ya se encuentra estabilizado en el setpoint al momento de la perturbación ($T_0 \approx T_{sp}$), el límite asciende a $D \leq 25$\,$^\circ$C. La simulación de escritorio permite verificar visualmente este comportamiento: al inyectar un DoS superior al límite, el indicador de estado conmuta a rojo y la temperatura converge a un valor permanentemente alejado del setpoint.
+Para el caso general con temperaturas arbitrarias, el límite admisible de perturbación es $D \le 25 - (T_0 - T_{sp})$. Si la perturbación $D$ supera este umbral (por ejemplo, $D = 25$\,$^\circ$C), el CRAC operará saturado al $100$\,\% de su potencia y la temperatura del pasillo frío quedará permanentemente desviada por encima del setpoint.
 
-\textbf{Definición de falla por capacidad de refrigeración.} Se considera que el sistema entra en \textbf{falla funcional por capacidad} cuando la perturbación supera el límite calculado y el actuador opera permanentemente saturado, resultando en un error en régimen permanente distinto de cero. Sin embargo, debido a la inercia térmica de la planta, se define un umbral temporal para la detección de la falla: si el esfuerzo de control $u(t)$ permanece saturado al $100\%$ por un tiempo continuo superior a $t_{\text{sat}} \ge 30$\,segundos, se declara el estado de falla del sistema. Esta condición es irreversible sin intervención externa (reducción de la carga térmica o activación de unidades CRAC redundantes).
+\textbf{Definición de falla.} A partir de este límite físico, el sistema clasifica las condiciones de falla del lazo de control según dos criterios:
+\begin{itemize}
+    \item \textbf{Falla por Capacidad de Enfriamiento (Rojo):} Ocurre cuando la perturbación excede el límite teórico ($D > 19$\,$^\circ$C) haciendo que el CRAC se sature al $100$\,\% por un tiempo continuo superior a $t_{\text{sat}} \ge 30$\,segundos, lo que rompe el lazo de control y eleva la temperatura ambiente.
+    \item \textbf{Falla Térmica Crítica (Rojo):} Se activa si la temperatura física del aire supera los $32$\,$^\circ$C (límite absoluto de ASHRAE), poniendo en riesgo inmediato de daño térmico a los procesadores de los servidores.
+\end{itemize}
 
 \textbf{Medidas de mitigación.} En configuraciones típicas de Data Center se emplea redundancia $N+1$: si una unidad CRAC satura, las restantes absorben la carga excedente. Adicionalmente, un lazo de control feedforward que anticipe el aumento de carga térmica a partir de la monitorización del uso de CPU puede iniciar el enfriamiento antes de que la temperatura del aire se eleve, reduciendo el pico transitorio y ampliando el margen efectivo de rechazo.
 
