@@ -970,7 +970,53 @@ y para $t \geq 200$\,s se superpone la contribución de la perturbación:
 \end{equation}
 Se observa que en ambos tramos el error converge a cero, confirmando analítica y experimentalmente la eficacia de la acción integral.
 \FloatBarrier
+
+\section{Ensayos y Simulación en Tiempo Real}
+\label{sec:sim_tiempo_real}
+
+Para complementar el análisis analítico continuo y validar empíricamente las decisiones de diseño del controlador, se realizaron ensayos dinámicos utilizando el simulador interactivo de escritorio (\texttt{app\_escritorio.py}). El simulador resuelve segundo a segundo la ecuación diferencial del sistema térmico, incorporando las no linealidades del actuador (saturación en $0$-$100$\,\%) y evaluando la clasificación de estados operativos de forma dinámica. A continuación, se detallan tres escenarios experimentales representativos que caracterizan el comportamiento del sistema.
+
+\subsection{Caso 1: Perturbación en el Límite de Capacidad ($D = 19$\,$^\circ$C)}
+En este ensayo, se inyectó una perturbación térmica tipo escalón de magnitud $D = 19$\,$^\circ$C, la cual se corresponde exactamente con el límite teórico de saturación del actuador en estado estacionario calculado en la Sección V-C. 
+
+Como se observa en la Fig.~\ref{fig:sim_falla_capacidad}, al inicio del transitorio la temperatura del pasillo frío ($T_{out}(t)$) experimenta una excursión térmica moderada y es llevada de regreso de forma sobreamortiguada hasta el setpoint de $22$\,$^\circ$C, logrando anular el error permanente. Sin embargo, para sostener este balance, la acción de control ($u(t)$) del CRAC debe operar permanentemente al $100$\,\% de apertura, dejándolo sin margen de reserva ante cualquier desvío adicional. Transcurridos los $30$\,s continuos en este estado, el simulador clasifica la operación como \texttt{FALLA: CRAC SATURADO}, reflejando un estado crítico de vulnerabilidad operativa.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{sim_falla_capacidad.png}
+    \caption{Captura del simulador para una perturbación límite de $D = 19$\,$^\circ$C. El sistema estabiliza la temperatura en $22$\,$^\circ$C, pero exige el $100$\,\% del esfuerzo de control de los ventiladores, de modo que el simulador declara una falla por capacidad tras $30$\,s continuos de saturación.}
+    \label{fig:sim_falla_capacidad}
+\end{figure}
+
+\subsection{Caso 2: Falla por Capacidad Excedida y Falla Térmica Crítica ($D = 29.5$\,$^\circ$C)}
+Se simuló un ataque DoS severo inyectando una perturbación térmica de $D = 29.5$\,$^\circ$C, un valor que excede la capacidad máxima de enfriamiento del sistema.
+
+La Fig.~\ref{fig:sim_falla_critica} muestra que el actuador CRAC satura de forma inmediata al $100$\,\% intentando enfriar el pasillo sin éxito. Al ser la carga térmica superior a la potencia frigorífica neta, la temperatura del pasillo frío se eleva continuamente hasta superar el umbral de seguridad de los servidores. El simulador detecta la violación del límite de $32$\,$^\circ$C (ASHRAE A1) a los $t \approx 1035$\,s y conmuta el estado del sistema a \texttt{FALLA: TEMP. CRÍTICA}, lo que en una instalación física dispararía una parada de emergencia de los racks para evitar daño térmico permanente en los procesadores.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{sim_falla_critica.png}
+    \caption{Captura del simulador ante un DoS extremo de $D = 29.5$\,$^\circ$C. La potencia de enfriamiento resulta insuficiente, provocando que la temperatura del aire supere el límite crítico absoluto de seguridad de $32$\,$^\circ$C.}
+    \label{fig:sim_falla_critica}
+\end{figure}
+
+\subsection{Caso 3: Diagnóstico y Resolución del Bug de Anti-Windup}
+Durante las fases iniciales de ensayo de la aplicación de escritorio, se inyectó un DoS de magnitud $25$\,$^\circ$C con el fin de evaluar la respuesta en saturación. Se observó un comportamiento anómalo detallado en la Fig.~\ref{fig:sim_bug_saturacion}: la temperatura se estabilizó permanentemente en $28.8$\,$^\circ$C (un error estacionario de $-6.77$\,$^\circ$C), mientras que el esfuerzo de control del CRAC permaneció estancado en un $96.9$\,\%, sin llegar a demandar la potencia total.
+
+El análisis de esta falla reveló que se trataba de un problema en el lazo de anti-windup: el límite de sujeción (clamping) de la acción integral en el código del controlador estaba limitado estáticamente a $\pm 200$. Dado que la ganancia integral es $K_i = 0.4$, la máxima contribución posible de la acción integral al esfuerzo de control era de $0.4 \times (-200) = -80$\,\%, recayendo en el término proporcional el aporte del $20$\,\% restante para alcanzar la saturación. Dado que en régimen permanente la acción proporcional depende del error físico y este tendía a achicarse, el controlador era incapaz de suministrar el esfuerzo total de control. 
+
+Este ensayo validó la decisión de incrementar el límite del integrador a $\pm 500$ (cumpliendo con la condición matemática de $I_{\text{max}} \ge 100/K_i$), lo cual permitió al actuador alcanzar el $100$\,\% de apertura y reducir el error estacionario al menor nivel físicamente posible ante perturbaciones de gran escala.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{sim_bug_saturacion.png}
+    \caption{Diagnóstico experimental de la saturación prematura. Debido a un límite de sujeción integral de $\pm 200$, la acción integral se bloqueaba limitando el esfuerzo del CRAC al $96.9$\,\% y dejando un desvío térmico permanente de $-6.77$\,$^\circ$C.}
+    \label{fig:sim_bug_saturacion}
+\end{figure}
+
+\FloatBarrier
 \section{Conclusión}
+
 En este trabajo final integrador, se ha diseñado, modelado y validado con éxito un sistema de control clásico en lazo cerrado para la regulación de la temperatura en el pasillo frío de un Data Center, garantizando el cumplimiento de los estrictos rangos operativos definidos por la normativa ASHRAE TC 9.9 y tomando como base el modelo fluidodinámico de Shi et al. (2026). 
 
 A partir del desarrollo realizado, se destacan las siguientes conclusiones de carácter ingenieril:
