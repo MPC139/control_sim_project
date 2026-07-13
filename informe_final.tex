@@ -545,7 +545,7 @@ La respuesta temporal $y(t)$ se obtiene expandiendo $Y(s)$ en fracciones parcial
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{respuesta_seguimiento.png}
-    \caption{Respuesta al escalón de referencia. Evolución de la temperatura desde $T_0 = 28$\,$^\circ$C hasta el setpoint de $22$\,$^\circ$C, sin perturbación ($D = 0$). Se observa un régimen sobreamortiguado sin sobreimpulso, con tiempo de asentamiento en la banda del $\pm 2$\,\% aproximado a los $200$\,s.}
+    \caption{Respuesta al escalón de referencia ($D = 0$). En el gráfico superior (temperatura) se representa la evolución de la temperatura de salida $T_{out}(t)$ (curva azul sólida) partiendo del estado inicial $T_0 = 28$\,$^\circ$C (línea punteada gris) y convergiendo de forma sobreamortiguada al setpoint de $22$\,$^\circ$C (línea discontinua roja) dentro de la banda de tolerancia de $\pm 2$\,\% ($0.12$\,$^\circ$C, franja sombreada verde). En el gráfico inferior (error) se detalla la señal de error de seguimiento $e(t) = T_{sp} - T_{out}$ (curva verde sólida), la cual inicia en $-6$\,$^\circ$C y alcanza el valor de error nulo con un tiempo de asentamiento $t_s \approx 166$\,s.}
     \label{fig:seguimiento_temporal}
 \end{figure}
 
@@ -663,7 +663,7 @@ La temperatura en el dominio de Laplace resulta $Y(s) = T_d(s) \cdot D(s)$. Su e
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{respuesta_perturbacion.png}
-    \caption{Rechazo de perturbación. Partiendo del estado estacionario en $22$\,$^\circ$C, se inyecta un escalón de $+5$\,$^\circ$C filtrado por la dinámica FOPTD del pasillo frío. La temperatura asciende suavemente hasta un pico de $24.36$\,$^\circ$C y es llevada de regreso al setpoint en aproximadamente $229$\,s.}
+    \caption{Rechazo de perturbación ($R = 0$). Simulación del efecto de un ataque DoS de $+5$\,$^\circ$C. El gráfico superior muestra la temperatura de salida $T_{out}(t)$ (curva azul sólida), la cual parte del setpoint de $22$\,$^\circ$C (línea discontinua roja), alcanza un pico máximo de $24.36$\,$^\circ$C a los $t = 45$\,s debido a la inercia térmica y regresa progresivamente a la banda de tolerancia de $\pm 2$\,\% (franja sombreada verde). El gráfico inferior muestra la señal de error de regulación $e(t)$ (curva verde sólida); el área sombreada bajo dicha curva representa gráficamente la Severidad de la Excursión Térmica (TES), la cual es anulada en estado estacionario gracias a la acción integral.}
     \label{fig:perturbacion}
 \end{figure}
 
@@ -956,7 +956,7 @@ La presencia de la acción integral asegura este rechazo completo de la perturba
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\linewidth]{respuesta_temporal.png}
-    \caption{Respuesta completa del sistema. Superposición del seguimiento al escalón de referencia ($28 \to 22$\,$^\circ$C) y el rechazo del ataque DoS inyectado en $t = 200$\,s. En ambas fases el error en régimen permanente es nulo.}
+    \caption{Respuesta completa y superpuesta del sistema. El gráfico superior detalla la temperatura medida $T_{out}(t)$ (curva azul sólida) en el pasillo frío. Se observa el seguimiento inicial desde $T_0 = 28$\,$^\circ$C (convergencia a la franja verde de tolerancia en $t_s \approx 166$\,s) y la inyección del ataque DoS en $t = 200$\,s (línea punteada vertical naranja), lo que eleva transitoriamente la temperatura hasta un pico de $24.37$\,$^\circ$C antes de estabilizarse nuevamente en la zona segura (período bajo perturbación sombreado en color crema). El gráfico inferior representa la señal de error $e(t) = T_{sp} - T_{out}$ (curva verde sólida) con el desvío térmico acumulado sombreado en rosa, mostrando un error nulo en régimen permanente para ambas etapas.}
     \label{fig:temporal}
 \end{figure}
 
