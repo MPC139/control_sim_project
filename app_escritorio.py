@@ -34,7 +34,7 @@ class Simulador(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Simulador de Control Térmico — Data Center")
-        self.setMinimumSize(1200, 750)
+        self.setMinimumSize(1280, 920)
 
         # ── Estado de simulación ───────────────────────────────────────
         self.running = False
@@ -123,7 +123,7 @@ class Simulador(QMainWindow):
 
         # ── Panel izquierdo: controles ──────────────────────────────────
         left = QWidget()
-        left.setFixedWidth(280)
+        left.setFixedWidth(330)
         left_layout = QVBoxLayout(left)
         left_layout.setSpacing(6)
 
