@@ -673,17 +673,28 @@ Cualquier sistema físico de control posee restricciones en sus actuadores, ya q
 
 Esta limitación física impone una frontera crítica: si el calor disipado por los servidores más el aporte térmico de una perturbación externa (como el ataque DoS) superan la capacidad máxima de extracción de calor del CRAC al $100$\,\% de apertura, el lazo de control perderá su capacidad de regular y la temperatura del pasillo frío subirá sin control. 
 
-Para encontrar matemáticamente este límite y definir en qué punto el sistema entra en una condición de falla, realizamos un **balance térmico en estado estacionario** (régimen permanente, cuando el transitorio ha concluido y las variables se han estabilizado). En este estado, la temperatura del aire en el pasillo frío ($T_{out}$) es el resultado del balance estático entre la temperatura base de la sala ($T_0$), el enfriamiento provocado por la apertura del CRAC ($K \cdot U$, donde la ganancia de la planta $K$ es negativa) y la perturbación térmica externa ($D$):
+Para encontrar matemáticamente este límite y definir en qué punto el sistema entra en una condición de falla, planteamos un **balance térmico en estado estacionario** (régimen permanente, cuando el transitorio ha concluido y las variables se han estabilizado). Físicamente, la temperatura final del aire en el pasillo frío ($T_{out}$) depende del balance de dos fuerzas opuestas: las que aportan calor (la temperatura base de la sala $T_0$ y la perturbación térmica externa $D$) y la fuerza que inyecta frío (el enfriamiento del CRAC, modelado como $-|K| \cdot U$, donde $U$ es la apertura en \% y $|K|$ es la ganancia del proceso en valor absoluto):
 \begin{equation}
-    T_{out} = T_0 + K\,U + D
+    T_{out} = T_0 + D - |K|\,U
 \end{equation}
-Para asegurar la estabilidad, deseamos que en estado permanente la temperatura coincida exactamente con nuestro setpoint de consigna ($T_{out} = T_{sp}$). Despejando el esfuerzo de control necesario $U$ obtenemos:
+Dado que el objetivo del lazo de control en régimen permanente es la regulación exacta en el setpoint de consigna ($T_{out} = T_{sp}$), podemos reescribir el balance como:
+\begin{equation}
+    T_{sp} = T_0 + D - |K|\,U
+\end{equation}
+Despejando el esfuerzo de control necesario $U$ para sostener esta igualdad, se obtiene la expresión general:
 \begin{equation}
     U = \frac{T_0 - T_{sp} + D}{|K|}
 \end{equation}
-Evaluando con los parámetros nominales del diseño ($K = -0.25$\,\textdegree C/\%, $T_0 = 28$\,\textdegree C y $T_{sp} = 22$\,\textdegree C), la ecuación de esfuerzo se reduce a:
+Esta ecuación posee una interpretación física muy directa:
+\begin{itemize}
+    \item \textbf{El numerador ($T_0 - T_{sp} + D$):} Representa los grados Celsius totales que el CRAC debe extraer del pasillo frío. Está compuesto por la diferencia térmica base para alcanzar el setpoint ($T_0 - T_{sp}$) más el calor adicional aportado por la perturbación ($D$).
+    \item \textbf{El denominador ($|K|$):} Representa la ganancia del proceso en valor absoluto (cuántos grados Celsius disminuye la temperatura por cada 1\% de apertura del CRAC).
+\end{itemize}
+De esta forma, el esfuerzo de control $U$ es simplemente el cociente entre el salto térmico total a enfriar y la capacidad unitaria de refrigeración del actuador.
+
+Evaluando con los parámetros nominales del diseño ($|K| = 0.25$\,$^\circ$C/\%, $T_0 = 28$\,$^\circ$C y $T_{sp} = 22$\,$^\circ$C), la ecuación de esfuerzo se reduce a:
 \begin{equation}
-    U = 4\,(28 - 22 + D) = 24 + 4D
+    U = \frac{28 - 22 + D}{0.25} = 4\,(6 + D) = 24 + 4D
 \end{equation}
 Donde la constante de $24$\,\% representa el esfuerzo base del CRAC necesario para mantener el pasillo a $22$\,$^\circ$C partiendo de los $28$\,$^\circ$C iniciales, en ausencia completa de perturbaciones ($D = 0$).
 
