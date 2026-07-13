@@ -44,6 +44,7 @@ El repositorio se encuentra organizado de la siguiente manera:
     *   `generate_screenshots.py`: Generador de capturas de pantalla de la app de escritorio en modo offscreen.
 *   **`docs/`**: Documentación adicional de soporte del proyecto.
 *   **`run_sim.sh`**: Script Bash autogestionado para inicializar el entorno virtual y lanzar el simulador web.
+*   **`run_desktop_sim.sh`**: Script Bash autogestionado para inicializar el entorno virtual y lanzar el simulador de escritorio (PyQt6).
 *   **`requirements.txt`**: Dependencias de Python (`streamlit`, `pyqt6`, `pyqtgraph`, `control`, `matplotlib`, `numpy`, `scipy`).
 
 ---

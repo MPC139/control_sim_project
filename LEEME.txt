@@ -37,4 +37,5 @@ Si prefieres hacerlo paso a paso:
 - `scripts/`: Scripts de Python para generar gráficos y diagramas de bloques.
 - `docs/`: Documentación de apoyo (marco teórico, guías del TFI, etc.).
 - `run_sim.sh`: Script de automatización de entorno y ejecución web.
+- `run_desktop_sim.sh`: Script de automatización de entorno y ejecución de escritorio (PyQt6).
 - `requirements.txt`: Lista de librerías necesarias.
