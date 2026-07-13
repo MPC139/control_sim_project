@@ -976,7 +976,7 @@ Se observa que en ambos tramos el error converge a cero, confirmando analítica 
 
 Para complementar el análisis analítico continuo y validar empíricamente las decisiones de diseño del controlador, se realizaron ensayos dinámicos utilizando el simulador interactivo de escritorio (\texttt{app\_escritorio.py}). El simulador resuelve segundo a segundo la ecuación diferencial del sistema térmico, incorporando las no linealidades del actuador (saturación en $0$-$100$\,\%) y evaluando la clasificación de estados operativos de forma dinámica. A continuación, se detallan tres escenarios experimentales representativos que caracterizan el comportamiento del sistema.
 
-\subsection{Caso 1: Perturbación en el Límite de Capacidad ($D = 19$\,$^\circ$C)}
+\subsection{Caso 1: Perturbación en el Límite de Capacidad \texorpdfstring{($D = 19$\,$^\circ$C)}{D = 19 C}}
 En este ensayo, se inyectó una perturbación térmica tipo escalón de magnitud $D = 19$\,$^\circ$C, la cual se corresponde exactamente con el límite teórico de saturación del actuador en estado estacionario calculado en la Sección V-C. 
 
 Como se observa en la Fig.~\ref{fig:sim_falla_capacidad}, al inicio del transitorio la temperatura del pasillo frío ($T_{out}(t)$) experimenta una excursión térmica moderada y es llevada de regreso de forma sobreamortiguada hasta el setpoint de $22$\,$^\circ$C, logrando anular el error permanente. Sin embargo, para sostener este balance, la acción de control ($u(t)$) del CRAC debe operar permanentemente al $100$\,\% de apertura, dejándolo sin margen de reserva ante cualquier desvío adicional. Transcurridos los $30$\,s continuos en este estado, el simulador clasifica la operación como \texttt{FALLA: CRAC SATURADO}, reflejando un estado crítico de vulnerabilidad operativa.
@@ -988,7 +988,7 @@ Como se observa en la Fig.~\ref{fig:sim_falla_capacidad}, al inicio del transito
     \label{fig:sim_falla_capacidad}
 \end{figure}
 
-\subsection{Caso 2: Falla por Capacidad Excedida y Falla Térmica Crítica ($D = 29.5$\,$^\circ$C)}
+\subsection{Caso 2: Falla por Capacidad Excedida y Falla Térmica Crítica \texorpdfstring{($D = 29.5$\,$^\circ$C)}{D = 29.5 C}}
 Se simuló un ataque DoS severo inyectando una perturbación térmica de $D = 29.5$\,$^\circ$C, un valor que excede la capacidad máxima de enfriamiento del sistema.
 
 La Fig.~\ref{fig:sim_falla_critica} muestra que el actuador CRAC satura de forma inmediata al $100$\,\% intentando enfriar el pasillo sin éxito. Al ser la carga térmica superior a la potencia frigorífica neta, la temperatura del pasillo frío se eleva continuamente hasta superar el umbral de seguridad de los servidores. El simulador detecta la violación del límite de $32$\,$^\circ$C (ASHRAE A1) a los $t \approx 1035$\,s y conmuta el estado del sistema a \texttt{FALLA: TEMP. CRÍTICA}, lo que en una instalación física dispararía una parada de emergencia de los racks para evitar daño térmico permanente en los procesadores.
