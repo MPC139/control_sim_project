@@ -6,22 +6,84 @@ El sistema controla dinámicamente la velocidad de los ventiladores EC de una un
 
 ---
 
-##  Cómo Ejecutar el Simulador Interactivo
+## 📖 Guía de Lectura del Informe y Ejecución de Pruebas
 
-El simulador interactivo está desarrollado en **Python** utilizando **Streamlit**. Permite interactuar en tiempo real con las ganancias del controlador ($K_p$, $K_i$, $K_d$), el setpoint dinámico de temperatura, la velocidad de refresco y la inyección de la perturbación DoS.
+Esta guía detalla los pasos para consultar el informe final académico, ejecutar los simuladores dinámicos y reproducir los ensayos analíticos del sistema de control.
 
-### Requisitos Previos
-Tener instalado **Python 3.8+** en su sistema (Linux/macOS/Windows).
+### 📋 Requisitos Previos
 
-### Ejecución (Linux / macOS)
-Solo debe abrir una terminal en la carpeta del proyecto y correr el script automatizado:
+Tener instalado **Python 3.8+** en su sistema (Linux/macOS/Windows) y, opcionalmente, **Scilab / Xcos 6.1+** para las simulaciones complementarias en Xcos.
+
+---
+
+### 1. Lectura del Informe Final (PDF y LaTeX)
+El informe académico formal del TFI, formateado bajo las normativas oficiales IEEE (16 páginas con marcos teóricos, desarrollos matemáticos y resultados), se encuentra disponible en:
+👉 **[report/informe_final.pdf](report/informe_final.pdf)** *(Haz clic para abrir el reporte completo).*
+
+Si deseas recompilar el código fuente en LaTeX, navega a la carpeta correspondiente y ejecuta tu compilador (por ejemplo, con `pdflatex`):
+```bash
+cd report
+pdflatex informe_final.tex
+pdflatex informe_final.tex
+```
+
+---
+
+### 2. Ejecución de los Simuladores Interactivos (Python)
+
+El proyecto incluye dos plataformas de simulación interactiva que inicializan su propio entorno virtual e instalan todas las dependencias (`requirements.txt`) de forma silenciosa al ejecutarse:
+
+#### A. Simulador Web (Streamlit)
+Ideal para explorar rápidamente el lazo de control, visualizar el análisis de respuesta temporal y sintonizar en una interfaz web.
 ```bash
 ./run_sim.sh
 ```
-*Este script creará automáticamente el entorno virtual (`.venv`), instalará las dependencias necesarias (`requirements.txt`) de forma silenciosa e iniciará el servidor.*
+*Si la aplicación no se abre automáticamente en tu navegador, ingresa a: **[http://localhost:8501](http://localhost:8501)***
 
-Si el navegador no se abre automáticamente, ingrese a:
-**[http://localhost:8501](http://localhost:8501)**
+#### B. Simulador de Escritorio en Tiempo Real (PyQt6 + pyqtgraph)
+Diseñado para reproducir la dinámica física en tiempo real de alta velocidad (15+ FPS), registrar métricas de calidad de servicio (QoS) térmica y diagnosticar fallas de capacidad y saturación PID.
+```bash
+./run_desktop_sim.sh
+```
+
+---
+
+### 3. Ejecución de Ensayos Analíticos y Scripts
+En la carpeta `scripts/` se ubican utilidades en Python para regenerar las figuras y datos documentados en el informe:
+
+*   **Regenerar Gráficos del Informe (Bode y Respuestas Temporales):**
+    Genera de forma analítica las curvas de respuesta al escalón de referencia, rechazo de perturbaciones y el diagrama de estabilidad de Bode:
+    ```bash
+    .venv/bin/python scripts/generate_plots.py
+    ```
+    *Los resultados se guardan directamente en `report/figures/`.*
+
+*   **Regenerar Capturas de Ensayo del Simulador de Escritorio:**
+    Simula programáticamente y captura en memoria (modo offscreen) las tres situaciones clave (límite de capacidad, falla crítica y bug de clamping anti-windup) para actualizar los gráficos del apéndice del reporte:
+    ```bash
+    .venv/bin/python scripts/generate_screenshots.py
+    ```
+    *Los resultados actualizan los gráficos de la aplicación en `report/figures/`.*
+
+*   **Regenerar Diagramas de Bloques Draw.io:**
+    Reconstruye el archivo XML Draw.io editable del diagrama de bloques de control:
+    ```bash
+    .venv/bin/python scripts/generate_drawio.py
+    ```
+    *El archivo se guarda en `docs/diagrama_bloques_general.drawio`.*
+
+---
+
+### 4. Simulación Analítica en Scilab / Xcos
+Para abrir el modelo gráfico de bloques de Scilab/Xcos y correr las simulaciones del TFI:
+1. Abre **Scilab**.
+2. Dirígete a la carpeta `scilab/` dentro de la consola de Scilab.
+3. Ejecuta el script `abrir_xcos.sce` para cargar los bloques:
+   ```scilab
+   exec('abrir_xcos.sce', -1)
+   ```
+4. El simulador abrirá el archivo `Seguimiento_al_Escalon_PID_FOPTD.zcos`. Presiona **Play** en Xcos para iniciar la simulación.
+5. De manera alternativa, puedes correr los scripts analíticos de respuesta temporal `simulacion_seguimiento.sce` y `simulacion_perturbacion.sce` desde la consola de Scilab.
 
 ---
 
