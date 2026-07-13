@@ -25,12 +25,16 @@ Si prefieres hacerlo paso a paso:
 1. `uv venv`
 2. `source .venv/bin/activate`
 3. `uv pip install -r requirements.txt`
-4. `streamlit run app.py`
+4. `streamlit run src/app.py`
 
 ---
-**Archivos incluidos:**
-- `app.py`: Código principal del simulador interactivo.
+**Estructura del Proyecto:**
+- `src/app.py`: Código principal del simulador interactivo web (Streamlit).
+- `src/app_escritorio.py`: Código del simulador interactivo de escritorio (PyQt6).
+- `report/informe_final.tex`: Código fuente LaTeX del informe final.
+- `report/informe_final.pdf`: PDF compilado listo para entregar.
+- `scilab/`: Modelos (.zcos) y simulaciones (.sce) de Scilab / Xcos.
+- `scripts/`: Scripts de Python para generar gráficos y diagramas de bloques.
+- `docs/`: Documentación de apoyo (marco teórico, guías del TFI, etc.).
+- `run_sim.sh`: Script de automatización de entorno y ejecución web.
 - `requirements.txt`: Lista de librerías necesarias.
-- `marco_teorico.md`: Sustento académico del modelo FOPTD.
-- `sprints.md`: Planificación del proyecto.
-- `run_sim.sh`: Script de automatización.

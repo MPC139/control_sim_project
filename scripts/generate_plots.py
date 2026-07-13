@@ -1,6 +1,12 @@
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import control as ct
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(script_dir)
+figures_dir = os.path.join(project_dir, "report/figures")
 
 # Parameters from the paper (Shi, Liu et al., 2026)
 K = -0.25
@@ -135,7 +141,7 @@ ax2.grid(True, alpha=0.3, linestyle="--")
 ax2.set_ylim(-6.8, 0.8)
 
 plt.tight_layout()
-plt.savefig("respuesta_temporal.png", dpi=300)
+plt.savefig(os.path.join(figures_dir, "respuesta_temporal.png"), dpi=300)
 plt.close()
 
 # --- Plot 2: Reference Tracking Only (D = 0) ---
@@ -172,7 +178,7 @@ if np.any(inside_band):
                 fontsize=9, color="#d62728")
 
 plt.tight_layout()
-plt.savefig("respuesta_seguimiento.png", dpi=300)
+plt.savefig(os.path.join(figures_dir, "respuesta_seguimiento.png"), dpi=300)
 plt.close()
 
 # --- Plot 3: Bode Plot ---
@@ -196,7 +202,7 @@ ax_phase.set_xlabel("Frecuencia [rad/s]")
 ax_phase.grid(True, which="both", alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("diagrama_bode.png", dpi=300)
+plt.savefig(os.path.join(figures_dir, "diagrama_bode.png"), dpi=300)
 plt.close()
 
 # --- Plot 4: Perturbation Rejection Only (R=0) ---
@@ -234,7 +240,7 @@ ax2.legend(fontsize=9)
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("respuesta_perturbacion.png", dpi=300)
+plt.savefig(os.path.join(figures_dir, "respuesta_perturbacion.png"), dpi=300)
 plt.close()
 
 print("Plots generated successfully.")

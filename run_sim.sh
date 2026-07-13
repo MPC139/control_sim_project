@@ -50,4 +50,4 @@ echo "🌐 Iniciando servidor web de Streamlit..."
 echo "ℹ️  La aplicación debería abrirse automáticamente en su navegador."
 echo "   Si no abre, acceda a: http://localhost:8501"
 echo "--------------------------------------------------------"
-.venv/bin/python -m streamlit run app.py
+.venv/bin/python -m streamlit run src/app.py

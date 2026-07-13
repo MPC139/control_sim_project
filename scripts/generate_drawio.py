@@ -1,5 +1,11 @@
+import os
+import sys
 import xml.etree.ElementTree as ET
 import xml.dom.minidom
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.dirname(script_dir)
+docs_dir = os.path.join(project_dir, "docs")
 
 def create_drawio(filename, nodes, edges):
     mxfile = ET.Element("mxfile")
@@ -109,6 +115,6 @@ edges_main = [
     {"id": "e14", "source": "sumdist", "target": "sensor", "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=1;entryY=0.5;", "points": [(900, 220), (900, 430)]},
     {"id": "e15", "source": "sensor", "target": "sum1", "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;entryX=0.5;entryY=1;"},
 ]
-create_drawio("diagrama_bloques_general.drawio", nodes_main, edges_main)
+create_drawio(os.path.join(docs_dir, "diagrama_bloques_general.drawio"), nodes_main, edges_main)
 
 print("Drawio files generated successfully.")

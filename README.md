@@ -27,15 +27,24 @@ Si el navegador no se abre automáticamente, ingrese a:
 
 ##  Estructura del Proyecto
 
-*   **`app.py`**: Código fuente de la aplicación interactiva Streamlit (simulación dinámica en tiempo real y offline).
-*   **`run_sim.sh`**: Script Bash autogestionado para inicializar el entorno virtual y lanzar el simulador.
-*   **`informe_final.pdf`**: Reporte académico completo formateado bajo normativas IEEE. **¡Consúltelo para leer el análisis matemático detallado!**
-*   **`informe_final.tex`**: Código fuente en LaTeX del informe, incluyendo diagramas de bloques vectoriales en TikZ.
-*   **`generate_plots.py`**: Script de Python para generar de forma estática los gráficos de validación del informe.
-*   **Modelos de Scilab/Xcos** (Validación analítica):
-    *   `abrir_xcos.sce` / `Seguimiento_al_Escalon_PID_FOPTD.zcos`: Diagrama de simulación gráfica en Xcos.
-    *   `simulacion_seguimiento.sce` y `simulacion_perturbacion.sce`: Scripts de simulación matemática.
-*   **`requirements.txt`**: Dependencias de Python (`streamlit`, `control`, `matplotlib`, `numpy`, `scipy`).
+El repositorio se encuentra organizado de la siguiente manera:
+*   **`src/`**: Código fuente de las aplicaciones.
+    *   `app.py`: Simulador interactivo web (Streamlit).
+    *   `app_escritorio.py`: Simulador interactivo de escritorio (PyQt6 + pyqtgraph).
+*   **`report/`**: Informe final formal del proyecto.
+    *   `informe_final.pdf`: Reporte académico completo en PDF listo para entregar.
+    *   `informe_final.tex`: Código fuente LaTeX del reporte, incluyendo diagramas vectoriales TikZ.
+    *   `figures/`: Gráficos analíticos y capturas del simulador en tiempo real utilizados en el reporte.
+*   **`scilab/`**: Archivos de simulación y validación en Scilab / Xcos.
+    *   `Seguimiento_al_Escalon_PID_FOPTD.zcos`: Diagrama de bloques gráfico en Xcos.
+    *   `abrir_xcos.sce`, `simulacion_seguimiento.sce`, `simulacion_perturbacion.sce`: Scripts complementarios.
+*   **`scripts/`**: Utilidades y scripts generadores de recursos.
+    *   `generate_plots.py`: Generador de gráficos analíticos de control.
+    *   `generate_drawio.py`: Generador de diagramas de bloques drawio.
+    *   `generate_screenshots.py`: Generador de capturas de pantalla de la app de escritorio en modo offscreen.
+*   **`docs/`**: Documentación adicional de soporte del proyecto.
+*   **`run_sim.sh`**: Script Bash autogestionado para inicializar el entorno virtual y lanzar el simulador web.
+*   **`requirements.txt`**: Dependencias de Python (`streamlit`, `pyqt6`, `pyqtgraph`, `control`, `matplotlib`, `numpy`, `scipy`).
 
 ---
 

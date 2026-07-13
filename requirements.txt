@@ -3,3 +3,5 @@ control
 matplotlib
 numpy
 scipy
+pyqt6
+pyqtgraph
