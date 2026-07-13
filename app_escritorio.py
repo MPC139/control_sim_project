@@ -291,42 +291,43 @@ class Simulador(QMainWindow):
             axis.setTextPen(pg.mkPen(color=C_LABEL))
 
         # ── 1. Temperatura ──────────────────────────────────────────────
-        p1 = pw.addPlot(row=0, col=0, title="Temperatura de Salida")
+        p1 = pw.addPlot(row=0, col=0, title="Temperatura del Pasillo Frío")
         p1.setLabel("left", "°C")
         p1.showGrid(x=True, y=True, alpha=0.3)
         _style(p1.getAxis("left"))
         _style(p1.getAxis("bottom"))
-        p1.setTitle("Temperatura de Salida", color=C_LABEL, size="12pt")
-
-        self.curve_T  = p1.plot(pen=pg.mkPen(color=C_TEMP, width=2.5), name="T_out(t)  [°C]")
-        self.curve_sp = p1.plot(pen=pg.mkPen(color=C_SP, width=2, style=Qt.PenStyle.DashLine), name="Setpoint  [°C]")
+        p1.setTitle("Temperatura del Pasillo Frío (Aire Suministrado)", color=C_LABEL, size="11pt")
+        
         p1.addLegend(offset=(5, 5), labelTextColor=C_LABEL)
+        self.curve_T  = p1.plot(pen=pg.mkPen(color=C_TEMP, width=2.5), name="T_out(t) - Temp. Pasillo Frío [°C]")
+        self.curve_sp = p1.plot(pen=pg.mkPen(color=C_SP, width=2, style=Qt.PenStyle.DashLine), name="T_sp - Temperatura Consigna [°C]")
 
         # ── 2. Señales de Tensión ───────────────────────────────────────
-        p2 = pw.addPlot(row=1, col=0, title="Señales de Tensión")
+        p2 = pw.addPlot(row=1, col=0, title="Señales Eléctricas de Control y Sensor")
         p2.setLabel("left", "V")
         p2.showGrid(x=True, y=True, alpha=0.3)
         _style(p2.getAxis("left"))
         _style(p2.getAxis("bottom"))
-        p2.setTitle("Señales de Tensión", color=C_LABEL, size="12pt")
-
-        self.curve_vs = p2.plot(pen=pg.mkPen(color=C_VS, width=2.2), name="V_sensor(t) = H·T_out  [V]")
-        self.curve_ev = p2.plot(pen=pg.mkPen(color=C_EV, width=1.6, style=Qt.PenStyle.DashDotLine), name="E_v(t) = V_sp − V_sensor  [V]")
+        p2.setTitle("Señales Eléctricas de Control y Sensor", color=C_LABEL, size="11pt")
+        
         p2.addLegend(offset=(5, 5), labelTextColor=C_LABEL)
+        self.curve_vs = p2.plot(pen=pg.mkPen(color=C_VS, width=2.2), name="V_sensor(t) - Tensión Medida Pt100 [V]")
+        self.curve_ev = p2.plot(pen=pg.mkPen(color=C_EV, width=1.6, style=Qt.PenStyle.DashDotLine), name="E_v(t) - Error de Tensión [V]")
 
         # ── 3. Señal de Control ─────────────────────────────────────────
-        p3 = pw.addPlot(row=2, col=0, title="Esfuerzo de Control")
+        p3 = pw.addPlot(row=2, col=0, title="Esfuerzo de Control del CRAC (Ventiladores)")
         p3.setLabel("left", "%")
         p3.setLabel("bottom", "Tiempo [s]")
         p3.showGrid(x=True, y=True, alpha=0.3)
         _style(p3.getAxis("left"))
         _style(p3.getAxis("bottom"))
-        p3.setTitle("Esfuerzo de Control — Apertura CRAC", color=C_LABEL, size="12pt")
+        p3.setTitle("Esfuerzo de Control del CRAC (Ventiladores)", color=C_LABEL, size="11pt")
         p3.setYRange(-5, 105)
-
-        curve_u_fill = p3.plot(pen=pg.mkPen(color=C_U, width=0), fillLevel=0,
-                                brush=(203, 166, 247, 40), name="")
-        self.curve_u = p3.plot(pen=pg.mkPen(color=C_U, width=2.2), name="u(t) — Apertura CRAC  [%]")
+        
+        p3.addLegend(offset=(5, 5), labelTextColor=C_LABEL)
+        self.curve_u_fill = p3.plot(pen=pg.mkPen(color=C_U, width=0), fillLevel=0,
+                                    brush=(203, 166, 247, 40), name="")
+        self.curve_u = p3.plot(pen=pg.mkPen(color=C_U, width=2.2), name="u(t) - Apertura CRAC (Ventiladores) [%]")
 
         self.plot_widget = pw
 
@@ -519,6 +520,7 @@ class Simulador(QMainWindow):
         self.curve_vs.setData(tt, list(self.hist_vs))
         ev = [HR * self.Tsp - v for v in self.hist_vs]
         self.curve_ev.setData(tt, ev)
+        self.curve_u_fill.setData(tt, list(self.hist_u))
         self.curve_u.setData(tt, list(self.hist_u))
 
 
